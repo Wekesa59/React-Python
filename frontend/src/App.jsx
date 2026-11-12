@@ -1,6 +1,6 @@
 import React from "react";
 import './App.css';
-import SuperHeroList from './components/SuperHero';
+import SuperHeroList from './components/SuperHeros';
 
 const App = () => {
     return (
@@ -8,9 +8,11 @@ const App = () => {
           <header className="App-header">
             <h1> SuperHero Management App</h1>
           </header>
-          <main></main>
+          <main>
+            <SuperHeroList />
+          </main>
         </div>
     );
 };
 
-export default App
+export default App;

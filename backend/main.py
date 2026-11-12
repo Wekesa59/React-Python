@@ -4,16 +4,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 
-class Superhero(BaseModel):
+class SuperHero(BaseModel):
     name: str
 
-class Superheroes(BaseModel):
-    superheroes: List[Superhero]
+class SuperHeroes(BaseModel):
+    superHeroes: List[SuperHero]
 
 app = FastAPI()
 
 origins = [
-    "https://localhost:5173"
+    "http://localhost:5173",
 ]
 
 #Ensure that any commands or info comes from our origins address and not anywhere else
@@ -26,16 +26,16 @@ app.add_middleware(
 )
 
 #Will not persist across server restarts
-memory_db = {"superheroes": []}
+memory_db = {"superHeroes": []}
 
-@app.get("/superheroes", response_model=Superheroes)
-def get_superheroes():
-    return Superheroes(superheroes=memory_db["superheroes"])
+@app.get("/superHeroes", response_model=SuperHeroes)
+def get_superHeroes():
+    return SuperHeroes(superHeroes=memory_db["superHeroes"])
 
-@app.post("/superheroes")
-def add_superhero(superhero: Superhero):
-    memory_db["superheroes"].append(superhero)
-    return superhero
+@app.post("/superHeroes")
+def add_superHero(superHero: SuperHero):
+    memory_db["superHeroes"].append(superHero)
+    return superHero
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

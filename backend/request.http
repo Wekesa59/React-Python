@@ -1,0 +1,7 @@
+POST http://localhost:5173/superheroes
+Content-Type: application/json
+
+{
+    "name": "Superman",
+    "name": "Batman"
+}

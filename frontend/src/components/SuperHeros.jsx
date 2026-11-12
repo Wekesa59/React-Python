@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
+import AddSuperHeroForm from "./AddSuperHeroForm";
 import api from "../api";
-import AddSuperheroForm from "./AddSuperoForm";
 
 const SuperHeroList = () => {
     const [superheroes, setSuperheroes] = useState([]);
 
     const fetchSuperheroes = async () => {
         try {
-            const response = await api.get("/superheroes");
-            setSuperheroes(response.data.superheroes);
+            const response = await api.get("/superHeroes");
+            setSuperheroes(response.data.superHeroes);
         } catch (error) {
             console.error("Error fetching superheroes:", error);
         }
     };
 
-    const addSuperHero = async (superhero) => {
+    const addSuperHero = async (superHeroName) => {
         try {
-            await api.post("/superheroes", superhero);
+            await api.post("/superHeroes", { name: superHeroName });
             fetchSuperheroes();
         } catch (error) {
             console.error("Error adding superhero:", error);
@@ -29,12 +29,13 @@ const SuperHeroList = () => {
 
     return (
         <div>
-            <AddSuperheroForm addSuperHero={addSuperHero} />
+            <h2> Superhero List</h2>
             <ul>
-                {superheroes.map((superhero) => (
-                    <li key={superhero.id}>{superhero.name}</li>
+                {superheroes.map((superHero, index) => (
+                    <li key={index}>{superHero.name}</li>
                 ))}
             </ul>
+            <AddSuperHeroForm addSuperHero={addSuperHero} />
         </div>
     );
 };
