@@ -1,18 +1,59 @@
-import React from "react";
+import { useState, useEffect } from 'react';
+import ContactList from './components/ContactList';
 import './App.css';
-import SuperHeroList from './components/SuperHeros';
+import ContactForm from './components/ContactForm';
 
-const App = () => {
-    return (
-        <div className="App">
-          <header className="App-header">
-            <h1> SuperHero Management App</h1>
-          </header>
-          <main>
-            <SuperHeroList />
-          </main>
+function App() {
+  const [contacts, setContacts] = useState([{ firstName: "Daniel", lastName: "Wekesa", email: "Daniellw59@outlook.com", checkingAccount: "123456789", savingsAccount: "987654321" }]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentContact, setCurrentContact] = useState({});
+
+  useEffect(() => {
+    fetchContacts();
+  }, []);
+  
+
+  const fetchContacts = async () => {
+    const response = await fetch('/contacts');
+    const data = await response.json();
+    setContacts(data.contacts);
+    console.log(data.contacts);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCurrentContact({});
+  }
+
+  const openCreateModal = () => {
+    if (!isModalOpen) setIsModalOpen(true)
+  }
+
+  const openEditModal = (contact) => {
+    if (isModalOpen) return
+    setCurrentContact(contact)
+    setIsModalOpen(true)
+  }
+
+  const onUpdate =  () => {
+    closeModal()
+    fetchContacts()
+  }
+
+  return (
+    <>
+      <ContactList contacts={contacts} updateContact={openEditModal} updateCallback={onUpdate}/>
+      <button onClick={openCreateModal}>Create New Contact</button>
+      {isModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={closeModal}>&times;</span>
+            <ContactForm existingContact={currentContact} updateCallback={onUpdate} />
+          </div>
         </div>
-    );
-};
+      )}
+    </>
+  )
+}
 
 export default App;

@@ -1,41 +1,78 @@
-import uvicorn
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List
+from flask import request, jsonify
+from Config.config import app, db
+from Model.models import Contact
 
-class SuperHero(BaseModel):
-    name: str
+#Grab contacts from db and convert to useable json
+@app.route("/contacts", methods=["GET"])
+def get_contacts():
+    contacts = Contact.query.all()
+    json_contacts = list(map(lambda x: x.to_json(), contacts))
+    return jsonify({"contacts": json_contacts})
 
-class SuperHeroes(BaseModel):
-    superHeroes: List[SuperHero]
+#Creating a contact
+@app.route("/create_contact", methods=["POST"])
+def create_contact():
+    first_name = request.json.get("firstName")
+    last_name = request.json.get("lastName")
+    email = request.json.get("email")
+    checking_account = request.json.get("checkingAccount")
+    savings_account = request.json.get("savingsAccount")
 
-app = FastAPI()
+    if not first_name or not last_name or not email:
+        return jsonify({"message": "You must include a first name, last name and email"}), 400
+    if not checking_account or not savings_account:
+        return jsonify({"message": "You must include a checking account and savings account"}), 400
 
-origins = [
-    "http://localhost:5173",
-]
+    new_contact = Contact(
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        checking_account=checking_account,
+        savings_account=savings_account
+    )
 
-#Ensure that any commands or info comes from our origins address and not anywhere else
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    try:
+        db.session.add(new_contact)
+        db.session.commit()
+    except Exception as e:
+        return jsonify({"message": str(e)}), 400
 
-#Will not persist across server restarts
-memory_db = {"superHeroes": []}
+    return jsonify({"message": "User created successfully"}), 201
 
-@app.get("/superHeroes", response_model=SuperHeroes)
-def get_superHeroes():
-    return SuperHeroes(superHeroes=memory_db["superHeroes"])
+#Updating a contact
+@app.route("/update_contact/<int:user_id>", methods=["PATCH"])
+def update_contact(user_id):
+    contact = Contact.query.get(user_id)
 
-@app.post("/superHeroes")
-def add_superHero(superHero: SuperHero):
-    memory_db["superHeroes"].append(superHero)
-    return superHero
+    if not contact:
+        return jsonify({"message": "User not found"}), 404
+
+    data = request.json
+    contact.first_name = data.get("firstName", contact.first_name)
+    contact.last_name = data.get("lastName", contact.last_name)
+    contact.email = data.get("email", contact.email)
+    contact.checking_account = data.get("checkingAccount", contact.checking_account)
+    contact.savings_account = data.get("savingsAccount", contact.savings_account)
+
+    db.session.commit()
+    return jsonify({"message": "User updated!"}), 200
+
+#Deleting a contact
+@app.route("/delete_contact/<int:user_id>", methods=["DELETE"])
+def delete_contact(user_id):
+    contact = Contact.query.get(user_id)
+
+    if not contact:
+        return jsonify({"message": "User not found"}), 404
+
+    db.session.delete(contact)
+    db.session.commit()
+    return jsonify({"message": "User deleted!"}), 200
+
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # If db does not exist, create it
+    with app.app_context():
+        db.create_all()
+
+    app.run(debug=True)
