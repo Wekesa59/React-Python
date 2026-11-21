@@ -4,7 +4,7 @@ import './App.css';
 import ContactForm from './components/ContactForm';
 
 function App() {
-  const [contacts, setContacts] = useState([{ firstName: "Daniel", lastName: "Wekesa", email: "Daniellw59@outlook.com", checkingAccount: "123456789", savingsAccount: "987654321" }]);
+  const [contacts, setContacts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState({});
 
@@ -14,7 +14,7 @@ function App() {
   
 
   const fetchContacts = async () => {
-    const response = await fetch('/contacts');
+    const response = await fetch('http://127.0.0.1:5001/contacts');
     const data = await response.json();
     setContacts(data.contacts);
     console.log(data.contacts);

@@ -6,7 +6,7 @@ const ContactList = ({contacts, updateContact, updateCallback}) => {
             const options = {
                 method: "DELETE",
             }
-            const response = await fetch(`http://localhost:5000/delete_contact/${id}`, options)
+            const response = await fetch(`http://127.0.0.1:5001/delete_contact/${id}`, options)
             if (response.status == 200) {
                 updateCallback()
             }
@@ -26,6 +26,8 @@ const ContactList = ({contacts, updateContact, updateCallback}) => {
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Email</th>
+                        <th>Checking Account</th>
+                        <th>Savings Account</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -35,6 +37,8 @@ const ContactList = ({contacts, updateContact, updateCallback}) => {
                         <td>{contact.firstName}</td>
                         <td>{contact.lastName}</td>
                         <td>{contact.email}</td>
+                        <td>{contact.checkingAccount}</td>
+                        <td>{contact.savingsAccount}</td>
                         <td>
                             <button onClick={() => updateContact(contact)}>Update</button>
                             <button onClick={() => onDelete(contact.id)}>Delete</button>

@@ -1,6 +1,6 @@
 import {useState} from "react"
 
-const ContactForm = ({existingContact = {}, updateContact}) => {
+const ContactForm = ({existingContact = {}, updateCallback}) => {
     const [firstName, setFirstName] = useState(existingContact.firstName || "");
     const [lastName, setLastName] = useState(existingContact.lastName || "");
     const [email, setEmail] = useState(existingContact.email || "");
@@ -19,7 +19,7 @@ const ContactForm = ({existingContact = {}, updateContact}) => {
             checkingAccount,
             savingsAccount
         }
-        const url = "http://localhost:5000/" + (updating ? `update_contact/${existingContact.id}` : "create_contact")
+        const url = "http://127.0.0.1:5001/" + (updating ? `update_contact/${existingContact.id}` : "create_contact")
         const options = {
             method: updating ? "PATCH" : "POST",
             headers: {
@@ -29,7 +29,7 @@ const ContactForm = ({existingContact = {}, updateContact}) => {
         }
         const response = await fetch(url, options)
         if (response.status !== 201 && response.status !== 200) {
-            const message = await response.json()
+            const data = await response.json()
             alert(data.message)
         } else {
             updateCallback()
@@ -37,7 +37,7 @@ const ContactForm = ({existingContact = {}, updateContact}) => {
     }
 
     return (
-        <form>
+        <form onSubmit={onSubmit}>
             <div>
                 <label htmlFor="firstName">First Name:</label>
                 <input
